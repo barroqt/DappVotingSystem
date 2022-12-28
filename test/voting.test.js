@@ -137,35 +137,54 @@ const { developmentChains } = require("../helper-hardhat-config");
           await voting.startProposalsRegistering();
 
           // Add one proposal per voter
-          await voting.connect(voter1).addProposal("Proposal number 1");
-          await voting.connect(voter2).addProposal("Proposal number 2");
-          await voting.connect(voter3).addProposal("Proposal number 3");
+          await voting
+            .connect(voter1)
+            .addProposal("Arrêter de manger des cailloux");
+          await voting
+            .connect(voter2)
+            .addProposal(
+              "Prendre une douche froide le matin afin d’augmenter de 27% ma productivité"
+            );
+          await voting
+            .connect(voter3)
+            .addProposal(
+              "[Pensez bien à mettre vos noms sur vos gourdes] sera la règle #9 du fight club"
+            );
 
           // end proposal phase and start voting session
           await voting.endProposalsRegistering();
           await voting.startVotingSession();
         });
 
-        // it("should cast a vote", async function () {
-        //   await expect(voting.connect(voter1).setVote(3)).to.emit(
-        //     voting,
-        //     "Voted"
-        //   );
+        it("should cast a vote", async function () {
+          await expect(voting.connect(voter1).setVote(3)).to.emit(
+            voting,
+            "Voted"
+          );
 
-        //   assert(voting.voters[voter1].votedProposalId === 3);
-        //   assert(voting.voters[voter1].hasVoted === true);
+          // Check if voter has voted and is linked to the right proposal
+          const voter = await voting.connect(voter1).getVoter(voter1.address);
+          assert(voter.hasVoted === true);
+          assert(
+            ethers.BigNumber.from(voter.votedProposalId).toString() === "3"
+          );
 
-        //   // add votes to the 3rd proposal
-        //   await voting.connect(voter2).setVote(3);
-        //   await voting.connect(voter3).setVote(3);
-        //   assert(voting.proposalsArray[3].voteCount === 3);
-        // });
+          // add votes to the 3rd proposal
+          await voting.connect(voter2).setVote(3);
+          await voting.connect(voter3).setVote(3);
 
-        // it("should revert with an error if the caller is not whitelisted", async function () {
-        //   await expect(voting.setVote(1)).to.be.revertedWith(
-        //     "You're not a voter"
-        //   );
-        // });
+          // Get proposal number 3 to verify the number of votes received
+          const thirdProposal = await voting.connect(voter1).getOneProposal(3);
+          assert(
+            ethers.BigNumber.from(thirdProposal.voteCount).toString() === "3"
+          );
+        });
+
+        it("should revert with an error if the caller is not whitelisted", async function () {
+          await expect(voting.setVote(1)).to.be.revertedWith(
+            "You're not a voter"
+          );
+        });
 
         it("should revert with an error if the caller has already voted", async function () {
           // Vote once then expect the second vote to fail
@@ -248,7 +267,18 @@ const { developmentChains } = require("../helper-hardhat-config");
         });
 
         describe("Start proposal registering", function () {
-          it("should set a genesis proposal", async function () {});
+          it("should set a genesis proposal", async function () {
+            // Add a voter to get proposal
+            await voting.addVoter(voter1.address);
+
+            await voting.startProposalsRegistering();
+
+            const genesisProposal = await voting
+              .connect(voter1)
+              .getOneProposal(0);
+
+            assert(genesisProposal.description === "GENESIS");
+          });
 
           it("should revert with an error if the current workflow status is not RegisteringVoters", async function () {
             // Change workflow to fail second try
@@ -287,7 +317,47 @@ const { developmentChains } = require("../helper-hardhat-config");
         });
 
         describe("Tally votes", function () {
-          it("should store the proposal with the most votes", async function () {});
+          it("should store the proposal with the most votes", async function () {
+            // Add 3 voters
+            await voting.addVoter(voter1.address);
+            await voting.addVoter(voter2.address);
+            await voting.addVoter(voter3.address);
+
+            // start proposal phase
+            await voting.startProposalsRegistering();
+
+            // Add one proposal per voter
+            await voting
+              .connect(voter1)
+              .addProposal("Arrêter de manger des cailloux");
+            await voting
+              .connect(voter2)
+              .addProposal(
+                "Prendre une douche froide le matin afin d’augmenter de 27% ma productivité"
+              );
+            await voting
+              .connect(voter3)
+              .addProposal(
+                "[Pensez bien à mettre vos noms sur vos gourdes] sera la règle #9 du fight club"
+              );
+
+            // end proposal phase and start voting session
+            await voting.endProposalsRegistering();
+            await voting.startVotingSession();
+
+            // Cast votes
+            await voting.connect(voter1).setVote(2);
+            await voting.connect(voter2).setVote(3);
+            await voting.connect(voter3).setVote(3);
+
+            // Go to the tally vote phase
+            await voting.endVotingSession();
+            await voting.tallyVotes();
+
+            // verify that the winning proposal ID is 3
+            const winningProposalID = await voting.winningProposalID();
+            assert(ethers.BigNumber.from(winningProposalID).toString() === "3");
+          });
 
           it("should revert with an error if the current workflow status is not VotingSessionEnded", async function () {
             // Fails at first try because the state has never been updated
