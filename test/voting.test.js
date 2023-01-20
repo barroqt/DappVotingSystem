@@ -287,6 +287,12 @@ const { developmentChains } = require("../helper-hardhat-config");
               "Registering proposals cant be started now"
             );
           });
+
+          it("should revert with an error if the caller is not the owner", async function () {
+            await expect(
+              voting.connect(voter1).startProposalsRegistering()
+            ).to.be.revertedWith("Ownable: caller is not the owner");
+          });
         });
 
         describe("End proposal registering", function () {
@@ -295,6 +301,12 @@ const { developmentChains } = require("../helper-hardhat-config");
             await expect(voting.endProposalsRegistering()).to.be.revertedWith(
               "Registering proposals havent started yet"
             );
+          });
+
+          it("should revert with an error if the caller is not the owner", async function () {
+            await expect(
+              voting.connect(voter1).startProposalsRegistering()
+            ).to.be.revertedWith("Ownable: caller is not the owner");
           });
         });
 
@@ -305,6 +317,12 @@ const { developmentChains } = require("../helper-hardhat-config");
               "Registering proposals phase is not finished"
             );
           });
+
+          it("should revert with an error if the caller is not the owner", async function () {
+            await expect(
+              voting.connect(voter1).startProposalsRegistering()
+            ).to.be.revertedWith("Ownable: caller is not the owner");
+          });
         });
 
         describe("End voting session", function () {
@@ -313,6 +331,12 @@ const { developmentChains } = require("../helper-hardhat-config");
             await expect(voting.endVotingSession()).to.be.revertedWith(
               "Voting session havent started yet"
             );
+          });
+
+          it("should revert with an error if the caller is not the owner", async function () {
+            await expect(
+              voting.connect(voter1).startProposalsRegistering()
+            ).to.be.revertedWith("Ownable: caller is not the owner");
           });
         });
 
@@ -364,6 +388,12 @@ const { developmentChains } = require("../helper-hardhat-config");
             await expect(voting.tallyVotes()).to.be.revertedWith(
               "Current status is not voting session ended"
             );
+          });
+
+          it("should revert with an error if the caller is not the owner", async function () {
+            await expect(
+              voting.connect(voter1).startProposalsRegistering()
+            ).to.be.revertedWith("Ownable: caller is not the owner");
           });
         });
       });

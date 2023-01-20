@@ -1,4 +1,4 @@
-# Project 2
+# Project #3 Dapp Voting System
 
 Unit tests for the voting project.
 The contract has been tested following these steps:
@@ -37,4 +37,3 @@ yarn hardhat test
 ```zsh
 yarn hardhat coverage
 ```
-# DappVotingSystem
