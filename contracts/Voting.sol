@@ -91,6 +91,8 @@ contract Voting is Ownable {
         ); // facultatif
         // voir que desc est different des autres
 
+        require(proposalsArray.length <= 100, "Too many proposals");
+
         Proposal memory proposal;
         proposal.description = _desc;
         proposalsArray.push(proposal);
