@@ -1,5 +1,9 @@
 # Project 3
 
+The backend was untouched except that one require was added in order to check whether the proposal array does not open a DoS gas limit security vulnerability. 
+
+---
+
 Unit tests for the voting project.
 The contract has been tested following these steps:
 
