@@ -1,4 +1,4 @@
-# Project 2
+# Project 3
 
 Unit tests for the voting project.
 The contract has been tested following these steps:
